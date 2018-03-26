@@ -56,6 +56,7 @@ void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]);
 void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]);
 int random_value_filler (int min, int max);
 void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]);
+void draw_static ();
 
 //function that handles dungeon creation
 void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int corridors);
@@ -70,13 +71,8 @@ int main(int argc, char *argv[]) {
 	srand( time(NULL) ); //Randomize seed initialization for map_fill
 	map_filler (map);
 	
-	
-	
 	generate_dungeon (map, 7, 4);
 	
-	
-
-
 	#ifdef DEBUG
 	debug_print (map);
 	#endif
@@ -85,7 +81,7 @@ int main(int argc, char *argv[]) {
 	initscr();
 	curs_set(0);
 	start_color();
-	
+	draw_static ();
 	draw_map (map);
 	refresh();
 		
@@ -177,8 +173,6 @@ void create_first_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 ;  Used global variables:
 ; REMARKS when using this function:
 ;*********************************************************************/
-//TODO
-//check 3 cell wide are for the corridor for legal direction
 void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 	
 	int random_row, random_column, random_corridor_size, legal_direction, i;
@@ -190,6 +184,7 @@ void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 		random_corridor_size = random_value_filler (3, 15);
 		
 		//check for north walls
+
 		if (map [random_row][random_column][MAP_MAINLAYER] == CELL_WALL && map [random_row+1][random_column][MAP_MAINLAYER] == CELL_EMPTY){
 			
 			
@@ -198,14 +193,14 @@ void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 			#endif
 			legal_direction = 1;
 			//check if there's room for 3 cells for corridor
+
 			for (i = 0; i < random_corridor_size+1; i++){
 				
 				if (map [random_row-1-i][random_column][MAP_MAINLAYER] == CELL_EMPTY && map [random_row-1-i][random_column-1][MAP_MAINLAYER] == CELL_EMPTY && map [random_row-1-i][random_column+1][MAP_MAINLAYER] == CELL_EMPTY){
 					legal_direction = 0;
 				}
 			}
-			
-			if (legal_direction == 1){
+			if (legal_direction == 1 && ROWS-random_row-random_corridor_size > 0){
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < random_corridor_size; i++){
 					map [random_row-1-i][random_column][MAP_MAINLAYER] = CELL_EMPTY;
@@ -226,7 +221,7 @@ void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 				}
 			}
 			
-			if (legal_direction == 1){
+			if (legal_direction == 1 && ROWS-random_row+random_corridor_size < ROWS - 1){
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < random_corridor_size; i++){
 					map [random_row+1+i][random_column][MAP_MAINLAYER] = CELL_EMPTY;
@@ -247,7 +242,7 @@ void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 				}
 			}
 			
-			if (legal_direction == 1){
+			if (legal_direction == 1 && COLUMNS-random_column+random_corridor_size < COLUMNS - 1){
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < random_corridor_size; i++){
 					map [random_row][random_column+1+i][MAP_MAINLAYER] = CELL_EMPTY;
@@ -268,7 +263,7 @@ void create_corridor (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 				}
 			}
 			
-			if (legal_direction == 1){
+			if (legal_direction == 1 && COLUMNS-random_column-random_corridor_size > 0){
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < random_corridor_size; i++){
 					map [random_row][random_column-1-i][MAP_MAINLAYER] = CELL_EMPTY;
@@ -388,7 +383,7 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1){
+			if (legal_direction == 1 && ROWS-random_row-room_height > 0){
 				#ifdef DEBUG
 				std::cout << "Found north\n";
 				#endif
@@ -426,7 +421,7 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1){
+			if (legal_direction == 1  && ROWS-random_row+room_height < ROWS - 1){
 				#ifdef DEBUG
 				std::cout << "Found south\n";
 				#endif
@@ -464,7 +459,7 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1){
+			if (legal_direction == 1 && COLUMNS-random_column+room_width < COLUMNS - 1){
 				#ifdef DEBUG
 				std::cout << "Found east\n";
 				#endif
@@ -502,7 +497,7 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1){
+			if (legal_direction == 1 && COLUMNS-random_column-room_width > 0){
 				#ifdef DEBUG
 				std::cout << "Found west\n";
 				#endif
@@ -545,6 +540,38 @@ void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int
 	
 	
 	
+}
+/*********************************************************************
+;	F U N C T I O N    D E S C R I P T I O N
+;---------------------------------------------------------------------
+; NAME: draw_static
+; DESCRIPTION: Draws borders for creatures, uses ncurses
+;	Input: None
+;	Output: None
+;  Used global variables:
+; REMARKS when using this function:
+;*********************************************************************/
+void draw_static (){
+	int i;
+	
+	//declare color pairs
+	init_pair(1, COLOR_RED, COLOR_BLACK);
+	init_pair(2, COLOR_RED, COLOR_BLUE);
+	init_pair(3, COLOR_RED, COLOR_GREEN);
+	
+	//draw horizontal borders
+	attron(COLOR_PAIR(1));
+	for(i = 0; i < COLUMNS + 2; i++){
+		mvprintw(0, i, "@");
+		mvprintw(ROWS + 1, i, "@");
+	}
+	//draw vertical bordersgit status
+
+	for(i = 0; i < ROWS + 2; i++){
+		mvprintw(i, 0, "@");
+		mvprintw(i, COLUMNS + 1, "@");
+	}
+	attroff(COLOR_PAIR(1));
 }
 /*********************************************************************
 ;	F U N C T I O N    D E S C R I P T I O N
