@@ -24,7 +24,6 @@ void map_filler (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 		for(j = 0; j < COLUMNS; j++){
 			map[i][j][MAP_MAINLAYER] = CELL_WALL;
 		}
-		j = 0;
 	}
 }
 
@@ -52,8 +51,7 @@ void create_first_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 		for (j = 0; j < room_height; j++){
 			map [center_height+i][center_width+j][MAP_MAINLAYER] = CELL_EMPTY;
 			
-		}
-		j = 0;		
+		}	
 	}
 }
 
@@ -194,7 +192,6 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 		//check for north walls and check if you can build a room on north side
 		if (map [random_row][random_column][MAP_MAINLAYER] == CELL_WALL && map [random_row+1][random_column][MAP_MAINLAYER] == CELL_EMPTY){
 			
-
 			legal_direction = 1;
 			
 			for (i = 0; i < room_width; i++){
@@ -202,21 +199,18 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 					//check if there's enough room for the new room
 					if (map [random_row-1-i][random_column][MAP_MAINLAYER] == CELL_EMPTY && map [random_row-1-i][random_column+j][MAP_MAINLAYER] == CELL_EMPTY){
 						#ifdef DEBUG
-						std::cout << "Found empty\n";
-						std::cout << "room_width " << room_width << "room_height " << room_height << "\n";
+						std::cout << "Found north wall, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 						#endif
 						legal_direction = 0;
 					}
 				}
-				j = 0;
-				
 				
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1 && ROWS-random_row-room_height > 0){
+			if (legal_direction == 1 && ROWS - 1 -random_row-room_height > 0 && COLUMNS-random_column-room_width > 0 && COLUMNS-random_column+room_width < COLUMNS - 1){
 				#ifdef DEBUG
-				std::cout << "Found north\n";
+				std::cout << "Found north room, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 				#endif
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < room_width; i++){
@@ -240,21 +234,18 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 					
 					if (map [random_row+1+i][random_column][MAP_MAINLAYER] == CELL_EMPTY && map [random_row+1+i][random_column+j][MAP_MAINLAYER] == CELL_EMPTY){
 						#ifdef DEBUG
-						std::cout << "Found empty\n";
-						std::cout << "room_width " << room_width << "room_height " << room_height << "\n";
+						std::cout << "Found south wall, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 						#endif
 						legal_direction = 0;
 					}
 				}
-				j = 0;
-				
 				
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1  && ROWS-random_row+room_height < ROWS - 1){
+			if (legal_direction == 1  && ROWS - 1 - random_row + room_height < ROWS - 1 && COLUMNS-random_column-room_width > 0 && COLUMNS-random_column+room_width < COLUMNS - 1){
 				#ifdef DEBUG
-				std::cout << "Found south\n";
+				std::cout << "Found south room, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 				#endif
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < room_width; i++){
@@ -278,21 +269,18 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 					//check if there's enough room for the new room
 					if (map [random_row][random_column+1+j][MAP_MAINLAYER] == CELL_EMPTY && map [random_row+i][random_column+1+j][MAP_MAINLAYER] == CELL_EMPTY){
 						#ifdef DEBUG
-						std::cout << "Found empty\n";
-						std::cout << "room_width " << room_width << "room_height " << room_height << "\n";
+						std::cout << "Found east wall, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 						#endif
 						legal_direction = 0;
 					}
 				}
-				j = 0;
-				
 				
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1 && COLUMNS-random_column+room_width < COLUMNS - 1){
+			if (legal_direction == 1 && COLUMNS - 1 -random_column+room_width < COLUMNS - 1 && ROWS-random_row-room_height > 0 && ROWS-random_row+room_height < ROWS - 1){
 				#ifdef DEBUG
-				std::cout << "Found east\n";
+				std::cout << "Found east room, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 				#endif
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < room_width; i++){
@@ -316,21 +304,19 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 					//check if there's enough room for the new room
 					if (map [random_row][random_column-1-j][MAP_MAINLAYER] == CELL_EMPTY && map [random_row+i][random_column-1-j][MAP_MAINLAYER] == CELL_EMPTY){
 						#ifdef DEBUG
-						std::cout << "Found empty\n";
-						std::cout << "room_width " << room_width << "room_height " << room_height << "\n";
+						std::cout << "Found west wall, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 						#endif
 						legal_direction = 0;
 					}
 				}
-				j = 0;
 				
 				
 			}
 			
 			//create room if enough space
-			if (legal_direction == 1 && COLUMNS-random_column-room_width > 0){
+			if (legal_direction == 1 && COLUMNS - 1 -random_column-room_width > 0 && ROWS-random_row-room_height > 0 && ROWS-random_row+room_height < ROWS - 1){
 				#ifdef DEBUG
-				std::cout << "Found west\n";
+				std::cout << "Found west room, room_height: " << room_height << " room_width: " << room_width << " random_row: " << random_row << " random_column: " << random_column << "\n";
 				#endif
 				map [random_row][random_column][MAP_MAINLAYER] = CELL_DOOR;
 				for(i = 0; i < room_width; i++){
@@ -339,8 +325,7 @@ void create_room (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 					}
 				}
 			}
-			
-			
+						
 			break;
 		}
 	}
