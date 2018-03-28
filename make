@@ -1,0 +1,1 @@
+g++ -lncurses -o dg main.cpp dungeon_generator.cpp functions.cpp
