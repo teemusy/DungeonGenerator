@@ -1,7 +1,7 @@
 #define DEBUG
 //determines the size of the map
-#define ROWS 50
-#define COLUMNS 100
+#define ROWS 30
+#define COLUMNS 80
 #define FILL_PERCENTAGE 30
 #define ROOM_GEN_REP 20
 #define MAP_LAYER_COUNT 2

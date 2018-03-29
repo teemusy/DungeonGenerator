@@ -23,8 +23,8 @@
 *--------------------------------------------------------------------*/
 
 void debug_print (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]);
-void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]);
-void draw_static ();
+void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], WINDOW *local_win);
+void draw_static (WINDOW *local_win);
 void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int corridors);
 
 /*********************************************************************
@@ -36,20 +36,34 @@ int main(int argc, char *argv[]) {
 	char map [ROWS][COLUMNS][MAP_LAYER_COUNT];
 	srand( time(NULL) ); //Randomize seed initialization for map_fill
 	map_filler (map);
+	//magic numbers
 	generate_dungeon (map, 7, 4);
 	
 	#ifdef DEBUG
-	debug_print (map);
+		debug_print (map);
 	#endif
 	
 	//ncurses init
 	initscr();
 	curs_set(0);
+	
+	//size, location
+	WINDOW* map_window = newwin(ROWS + 2, COLUMNS + 2, 0, 0);
+	WINDOW* text_window = newwin(10, COLUMNS + 2, ROWS+2, 0);
+	//box(map_window,0,0);
+	//box(map_window, '*', '*');
+	box(text_window,0,0);
 	start_color();
-	draw_static ();
-	draw_map (map);
-	refresh();
 		
+	//should remove sraw_static later?
+	draw_static (map_window);
+	draw_map (map, map_window);
+	
+	refresh();
+	wrefresh(map_window);
+	wrefresh(text_window);
+	
+
 	getch();
 	endwin();	
 	
@@ -93,12 +107,12 @@ void debug_print (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 ;---------------------------------------------------------------------
 ; NAME: draw_map
 ; DESCRIPTION: Draws map with ncurses
-;	Input: Array
+;	Input: Array, Ncurses window
 ;	Output: None
 ;  Used global variables:
 ; REMARKS when using this function:
 ;*********************************************************************/
-void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
+void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], WINDOW *local_win){
 	int i, j;
 	
 	//declare color pairs
@@ -112,19 +126,19 @@ void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 		
 		for(j = 0; j < COLUMNS; j++){
 			if (map[i][j][0] == CELL_WALL){
-				attron(COLOR_PAIR(2));
-				mvprintw(i+1, j+1, "#");
-				attroff(COLOR_PAIR(2));	
+				wattron(local_win, COLOR_PAIR(2));
+				mvwprintw(local_win, i+1, j+1, "#");
+				wattroff(local_win, COLOR_PAIR(2));	
 			}
 			else if ((map[i][j][0] == CELL_EMPTY)){
-				attron(COLOR_PAIR(3));
-				mvprintw(i+1, j+1, ".");
-				attroff(COLOR_PAIR(3));
+				wattron(local_win, COLOR_PAIR(3));
+				mvwprintw(local_win, i+1, j+1, ".");
+				wattroff(local_win, COLOR_PAIR(3));
 			}			
 			else if ((map[i][j][0] == CELL_DOOR)){
-				attron(COLOR_PAIR(1));
-				mvprintw(i+1, j+1, "/");
-				attroff(COLOR_PAIR(1));
+				wattron(local_win, COLOR_PAIR(1));
+				mvwprintw(local_win, i+1, j+1, "/");
+				wattroff(local_win, COLOR_PAIR(1));
 			}
 		}
 		j = 0;
@@ -161,12 +175,12 @@ void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int
 ;---------------------------------------------------------------------
 ; NAME: draw_static
 ; DESCRIPTION: Draws borders for creatures, uses ncurses
-;	Input: None
+;	Input: Ncurses window
 ;	Output: None
 ;  Used global variables:
 ; REMARKS when using this function:
 ;*********************************************************************/
-void draw_static (){
+void draw_static (WINDOW *local_win){
 	int i;
 	
 	//declare color pairs
@@ -175,18 +189,18 @@ void draw_static (){
 	init_pair(3, COLOR_RED, COLOR_GREEN);
 	
 	//draw horizontal borders
-	attron(COLOR_PAIR(1));
+	wattron(local_win, COLOR_PAIR(1));
 	for(i = 0; i < COLUMNS + 2; i++){
-		mvprintw(0, i, "@");
-		mvprintw(ROWS + 1, i, "@");
+		mvwprintw(local_win, 0, i, "@");
+		mvwprintw(local_win, ROWS + 1, i, "@");
 	}
 	//draw vertical bordersgit status
 
 	for(i = 0; i < ROWS + 2; i++){
-		mvprintw(i, 0, "@");
-		mvprintw(i, COLUMNS + 1, "@");
+		mvwprintw(local_win, i, 0, "@");
+		mvwprintw(local_win, i, COLUMNS + 1, "@");
 	}
-	attroff(COLOR_PAIR(1));
+	wattroff(local_win, COLOR_PAIR(1));
 }
 
 /*********************************************************************
