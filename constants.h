@@ -20,3 +20,7 @@
 #define CELL_WALL '#'
 #define CELL_EMPTY '.'
 #define CELL_DOOR '/'
+
+struct cell_info {
+   int cell_wall;
+};

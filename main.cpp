@@ -18,6 +18,9 @@
 
 /* Global constants */
 
+/* Global structures */
+
+
 /*-------------------------------------------------------------------*
 *    FUNCTION PROTOTYPES                                             *
 *--------------------------------------------------------------------*/
@@ -32,10 +35,14 @@ void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int
 **********************************************************************/
 
 int main(int argc, char *argv[]) {
+
+	
 	int i;
 	char map [ROWS][COLUMNS][MAP_LAYER_COUNT];
+	struct cell_info new_map[ROWS][COLUMNS];
 	srand( time(NULL) ); //Randomize seed initialization for map_fill
 	map_filler (map);
+	new_map_filler (new_map);
 	//magic numbers
 	generate_dungeon (map, 7, 4);
 	

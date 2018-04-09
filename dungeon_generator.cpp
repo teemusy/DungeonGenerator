@@ -3,7 +3,6 @@
 #include <ctime>
 #include <ncurses.h>
 #include "constants.h"
-#include "dungeon_generator.h"
 #include "functions.h"
 
 /*********************************************************************
@@ -23,6 +22,17 @@ void map_filler (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 
 		for(j = 0; j < COLUMNS; j++){
 			map[i][j][MAP_MAINLAYER] = CELL_WALL;
+		}
+	}
+}
+
+void new_map_filler (struct cell_info map[ROWS][COLUMNS]){
+	int i, j;
+	
+	for(i = 0; i < ROWS; i++){
+
+		for(j = 0; j < COLUMNS; j++){
+			map[i][j].cell_wall = 1;
 		}
 	}
 }
