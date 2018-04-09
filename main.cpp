@@ -18,29 +18,35 @@
 
 /* Global constants */
 
+/* Global structures */
+
+
 /*-------------------------------------------------------------------*
 *    FUNCTION PROTOTYPES                                             *
 *--------------------------------------------------------------------*/
 
-void debug_print (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]);
-void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], WINDOW *local_win);
+void debug_print (struct cell_info map[ROWS][COLUMNS]);
 void draw_static (WINDOW *local_win);
-void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int corridors);
+void new_generate_dungeon (struct cell_info map[ROWS][COLUMNS], int rooms, int corridors);
+void new_draw_map (struct cell_info map[ROWS][COLUMNS], WINDOW *local_win);
 
 /*********************************************************************
 *    MAIN PROGRAM                                                      *
 **********************************************************************/
 
 int main(int argc, char *argv[]) {
+
+	
 	int i;
 	char map [ROWS][COLUMNS][MAP_LAYER_COUNT];
+	struct cell_info new_map[ROWS][COLUMNS];
 	srand( time(NULL) ); //Randomize seed initialization for map_fill
-	map_filler (map);
-	//magic numbers
-	generate_dungeon (map, 7, 4);
+	new_map_filler (new_map);
+
+	new_generate_dungeon (new_map, 7, 4);
 	
 	#ifdef DEBUG
-		debug_print (map);
+		debug_print (new_map);
 	#endif
 	
 	//ncurses init
@@ -50,14 +56,11 @@ int main(int argc, char *argv[]) {
 	//size, location
 	WINDOW* map_window = newwin(ROWS + 2, COLUMNS + 2, 0, 0);
 	WINDOW* text_window = newwin(10, COLUMNS + 2, ROWS+2, 0);
-	//box(map_window,0,0);
-	//box(map_window, '*', '*');
+
 	box(text_window,0,0);
 	start_color();
-		
-	//should remove sraw_static later?
 	draw_static (map_window);
-	draw_map (map, map_window);
+	new_draw_map (new_map, map_window);
 	
 	refresh();
 	wrefresh(map_window);
@@ -88,15 +91,28 @@ int main(int argc, char *argv[]) {
 ;  Used global variables:
 ; REMARKS when using this function:
 ;*********************************************************************/
-void debug_print (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
+void debug_print (struct cell_info map[ROWS][COLUMNS]){
 	
 	int i, j;
 	
 	for (i = 0; i < ROWS; i++){
 		for (j = 0; j < COLUMNS; j++){
-			std::cout << map[i][j][MAP_MAINLAYER];
+			if (map[i][j].cell_wall == 1){
+				std::cout << "#";
+				
+			}			
+			
+			if (map[i][j].cell_empty == 1){
+				std::cout << ".";
+				
+			}			
+			
+			if (map[i][j].cell_door == 1){
+				std::cout << "/";
+				
+			}
+			
 		}
-		j = 0;
 		std::cout << "\n";
 	}
 	std::cout << "\n";
@@ -112,7 +128,7 @@ void debug_print (char map [ROWS][COLUMNS][MAP_LAYER_COUNT]){
 ;  Used global variables:
 ; REMARKS when using this function:
 ;*********************************************************************/
-void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], WINDOW *local_win){
+void new_draw_map (struct cell_info map[ROWS][COLUMNS], WINDOW *local_win){
 	int i, j;
 	
 	//declare color pairs
@@ -124,18 +140,19 @@ void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], WINDOW *local_win){
 	
 	for(i = 0; i < ROWS; i++){
 		
+		//change to else if later
 		for(j = 0; j < COLUMNS; j++){
-			if (map[i][j][0] == CELL_WALL){
+			if (map[i][j].cell_wall == 1){
 				wattron(local_win, COLOR_PAIR(2));
 				mvwprintw(local_win, i+1, j+1, "#");
 				wattroff(local_win, COLOR_PAIR(2));	
 			}
-			else if ((map[i][j][0] == CELL_EMPTY)){
+			if ((map[i][j].cell_empty == 1)){
 				wattron(local_win, COLOR_PAIR(3));
 				mvwprintw(local_win, i+1, j+1, ".");
 				wattroff(local_win, COLOR_PAIR(3));
 			}			
-			else if ((map[i][j][0] == CELL_DOOR)){
+			if ((map[i][j].cell_door == 1)){
 				wattron(local_win, COLOR_PAIR(1));
 				mvwprintw(local_win, i+1, j+1, "/");
 				wattroff(local_win, COLOR_PAIR(1));
@@ -156,17 +173,17 @@ void draw_map (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], WINDOW *local_win){
 ;  Used global variables:
 ; REMARKS when using this function:
 ;*********************************************************************/
-void generate_dungeon (char map [ROWS][COLUMNS][MAP_LAYER_COUNT], int rooms, int corridors){
+void new_generate_dungeon (struct cell_info map[ROWS][COLUMNS], int rooms, int corridors){
 	int i;
 	
-	create_first_room (map);
+	new_create_first_room (map);
 		for (i = 0; i < corridors; i++){
-		create_corridor (map);
+		new_create_corridor (map);
 	}	
 	
-	create_first_room (map);
+	new_create_first_room (map);
 		for (i = 0; i < rooms; i++){
-		create_room (map);	
+		new_create_room (map);	
 	}
 }
 

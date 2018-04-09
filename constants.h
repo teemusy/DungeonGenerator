@@ -16,7 +16,9 @@
 #define NORTHWEST map [i-1][j-1][MAP_MAINLAYER]
 #define SOUTHWEST map [i+1][j-1][MAP_MAINLAYER]
 
-//map cell types, maybe create a struct to store them?
-#define CELL_WALL '#'
-#define CELL_EMPTY '.'
-#define CELL_DOOR '/'
+
+struct cell_info {
+   int cell_wall;
+   int cell_door;
+   int cell_empty;
+};
